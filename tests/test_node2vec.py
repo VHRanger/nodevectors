@@ -49,16 +49,72 @@ class TestGraphEmbedding(unittest.TestCase):
         # Gensim triggers deprecation warnings...
         warnings.simplefilter("ignore", category=PendingDeprecationWarning)
         warnings.simplefilter("ignore", category=DeprecationWarning)
-        g2v = graph2vec.Graph2Vec(
+        g2v = graph2vec.Node2Vec(
             walklen=5, epochs=5,
             return_weight=1., 
             neighbor_weight=1., threads=0,
             w2vparams={"window":10, "size":wordsize, "negative":20, "iter":10,
                        "batch_words":128, "workers": 6})
+        g2v2 = graph2vec.Node2Vec(
+            walklen=5, epochs=5,
+            return_weight=1.5, 
+            neighbor_weight=0.5, threads=0,
+            w2vparams={"window":10, "size":wordsize, "negative":20, "iter":10,
+                       "batch_words":128, "workers": 6})
         g2v.fit(tt, verbose=False)
+        g2v2.fit(tt, verbose=False)
         self.assertTrue(len(g2v.predict(9)) == wordsize)
+        self.assertTrue(len(g2v2.predict(9)) == wordsize)
         warnings.resetwarnings()
 
+
+class TestNodeWalks(unittest.TestCase):
+    """
+    Test that Node2Vec walks do as they should
+    """
+    def test_return_weight_inf_loops(self):
+        """
+        if return weight ~inf, should loop back and forth
+        """
+        n_nodes = 5
+        n_epoch = 2
+        walklen=10
+        fully_connected = np.ones((n_nodes,n_nodes))
+        np.fill_diagonal(fully_connected, 0)
+        fully_connected = graph2vec.graph._sparse_normalize_rows(
+            fully_connected
+        )
+        t1 = graph2vec.graph.make_walks( 
+            fully_connected,
+            walklen=walklen,
+            epochs=n_epoch,
+            return_weight=9999,
+            neighbor_weight=1.,
+            threads=0)
+        # Neighbor weight ~ 0 should also loop 
+        t2 = graph2vec.graph.make_walks( 
+            fully_connected,
+            walklen=walklen,
+            epochs=n_epoch,
+            return_weight=1.,
+            neighbor_weight=0.000001,
+            # Change thread values to make sure it works
+            threads=0)
+        self.assertTrue(t1.shape == (n_nodes * n_epoch, walklen))
+        # even columns should be equal (always returning)
+        np.testing.assert_array_equal(t1[:, 0], t1[:, 2])
+        np.testing.assert_array_equal(t1[:, 0], t1[:, 4])
+        np.testing.assert_array_equal(t1[:, 0], t1[:, 6])
+        np.testing.assert_array_equal(t2[:, 0], t2[:, 2])
+        np.testing.assert_array_equal(t2[:, 0], t2[:, 4])
+        np.testing.assert_array_equal(t2[:, 0], t2[:, 6])
+        # same for odd columns
+        np.testing.assert_array_equal(t1[:, 1], t1[:, 3])
+        np.testing.assert_array_equal(t1[:, 1], t1[:, 5])
+        np.testing.assert_array_equal(t1[:, 1], t1[:, 7])
+        np.testing.assert_array_equal(t2[:, 1], t2[:, 3])
+        np.testing.assert_array_equal(t2[:, 1], t2[:, 5])
+        np.testing.assert_array_equal(t2[:, 1], t2[:, 7])
 
 
 class TestSparseUtilities(unittest.TestCase):
@@ -137,7 +193,7 @@ class TestSparseUtilities(unittest.TestCase):
             fully_connected,
             walklen=n_walklen,
             epochs=10,
-            threads=-1)
+            threads=0)
         expected_val = (n_nodes - 1) / 2
         self.assertTrue(np.abs(np.mean(t1) - expected_val) < 0.3)
 
@@ -162,13 +218,13 @@ class TestSparseUtilities(unittest.TestCase):
             absorbing_state_graph, 
             walklen=50, 
             epochs=80, 
-            threads=-1
+            threads=0
         )
         walks4 = graph2vec.graph.make_walks(
             absorbing_state_graph, 
             walklen=50, 
             epochs=80, 
-            threads=-1
+            threads=0
         )
         end_state1 = walks1[:, -1]
         end_state2 = walks2[:, -1]
@@ -187,5 +243,14 @@ class TestSparseUtilities(unittest.TestCase):
             f"Walks: {walks4} \nEndStates: {end_state4}\n"
         )
 
-
-    
+    def test_changing_n_threads_works(self):
+        """
+        This is the last test, force recompile with different # threads
+        """
+        walks = graph2vec.graph.make_walks(
+            absorbing_state_graph, 
+            walklen=50, 
+            epochs=80, 
+            threads=3 # Different than in other tests
+        )
+        self.assertTrue(True, "Should get here without issues")

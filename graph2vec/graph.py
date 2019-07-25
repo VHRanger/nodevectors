@@ -6,13 +6,15 @@ import os
 import pandas as pd
 from scipy import sparse
 import time
+import warnings
 
 ### TODO: could drop gensim dependency by making coocurence matrix on the fly
 ###       instead of random walks and use GLoVe on it.
 ###       but then why not just use GLoVe on Transition matrix?
+# Gensim triggers automatic useless warnings for windows users...
+warnings.simplefilter("ignore", category=UserWarning)
 import gensim
-
-
+warnings.resetwarnings()
 
 
 # TODO: Organize Graph method here
@@ -106,21 +108,24 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
         Is generally equal to np.arrange(n_nodes) repeated for each epoch
     walklen : int
         length of the random walks
-    return_weight : float in [0, inf]
+    return_weight : float in (0, inf]
         Weight on the probability of returning to node coming from
         Having this higher tends the walks to be 
-        more like a Breadth-First Search
-        Equal to the inverse of p in the Node2Vec paper
-    neighbor_weight : float in [0, inf]
+        more like a Breadth-First Search.
+        Having this very high  (> 2) makes search very local.
+        Equal to the inverse of p in the Node2Vec paper.
+    neighbor_weight : float in (0, inf]
         Weight on the probability of visitng a neighbor node
         to the one we're coming from in the random walk
         Having this higher tends the walks to be 
-        more like a Depth-First Search
-        Equal to the inverse of q in the Node2Vec paper
+        more like a Depth-First Search.
+        Having this very high makes search more outward.
+        Having this very low makes search very local.
+        Equal to the inverse of q in the Node2Vec paper.
     Returns
     -------
     out : 2d np.array (n_walks, walklen)
-        A matrix where each row is a random walk, 
+        A matrix where each row is a biased random walk, 
         and each entry is the ID of the node
     """
     n_walks = len(sampling_nodes)
@@ -128,7 +133,7 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
     for i in numba.prange(n_walks):
         # Current node (each element is one walk's state)
         state = sampling_nodes[i]
-        res[i, k] = state
+        res[i, 0] = state
         # Do one normal step first
         # comments for these are in _csr_random_walk
         start = Tindptr[state]
@@ -139,33 +144,28 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
         next_idx = np.searchsorted(cdf, draw)
         state = Tindices[start + next_idx]
         for k in range(1, walklen-1):
-            prev = res[i, k-1]
             # Write state
             res[i, k] = state
             # Find rows in csr indptr
+            prev = res[i, k-1]
             start = Tindptr[state]
             end = Tindptr[state+1]
             start_prev = Tindptr[prev]
             end_prev = Tindptr[prev+1]
-            # Find overlaps
+            # Find overlaps and fix weights
             this_edges =  Tindices[start:end]
             prev_edges =  Tindices[start_prev:end_prev]
-            ret_mul = np.where(this_edges == prev, 
-                               return_weight,
-                               1)
-            n_mul = np.ones(this_edges.shape[0])
+            p = np.copy(Tdata[start:end])
+            ret_idx = np.where(this_edges == prev)[0]
+            p[ret_idx] = np.multiply(p[ret_idx], return_weight)
             for pe in prev_edges:
-                n_mul += np.where(this_edges == pe, 
-                                  neighbor_weight - 1,
-                                  0)
-            # now compute next step
-            p = Tdata[start:end].copy()
-            p *= ret_mul
-            p *= n_mul
-            cdf = np.cumsum(p)
+                n_idx = np.where(this_edges == pe)[0]
+                p[n_idx] = np.multiply(p[n_idx], neighbor_weight)
+            # Get next state
+            cdf = np.cumsum(np.divide(p, np.sum(p)))
             draw = np.random.rand()
             next_idx = np.searchsorted(cdf, draw)
-            state = Tindices[start + next_idx]
+            state = this_edges[next_idx]
         # Write final states
         res[i, -1] = state
     return res
@@ -174,6 +174,8 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
 def make_walks(T,
                walklen=10,
                epochs=3,
+               return_weight=1.,
+               neighbor_weight=1.,
                threads=0):
     """
     Create random walks from the transition matrix of a graph 
@@ -181,7 +183,7 @@ def make_walks(T,
 
     NOTE: scales linearly with threads but hyperthreads don't seem to 
             accelerate this linearly
-    
+
     Parameters
     ----------
     T : scipy.sparse.csr matrix
@@ -190,8 +192,22 @@ def make_walks(T,
         length of the random walks
     epochs : int
         number of times to start a walk from each nodes
+    return_weight : float in (0, inf]
+        Weight on the probability of returning to node coming from
+        Having this higher tends the walks to be 
+        more like a Breadth-First Search.
+        Having this very high  (> 2) makes search very local.
+        Equal to the inverse of p in the Node2Vec paper.
+    neighbor_weight : float in (0, inf]
+        Weight on the probability of visitng a neighbor node
+        to the one we're coming from in the random walk
+        Having this higher tends the walks to be 
+        more like a Depth-First Search.
+        Having this very high makes search more outward.
+        Having this very low makes search very local.
+        Equal to the inverse of q in the Node2Vec paper.
     threads : int
-        number of threads to use
+        number of threads to use.  0 is full use
 
     Returns
     -------
@@ -201,16 +217,34 @@ def make_walks(T,
     """
     n_rows = T.shape[0]
     sampling_nodes = np.arange(n_rows)
-    sampling_nodes = np.tile(sampling_nodes, n_rows * epochs)
+    sampling_nodes = np.tile(sampling_nodes, epochs)
     if type(threads) is not int:
         raise ValueError("Threads argument must be an int!")
-    if threads > 0:
-        os.environ['NUMBA_NUM_THREADS'] = str(threads)
-    walks = _csr_random_walk(T.data, T.indptr, T.indices, 
-                           sampling_nodes, walklen)
-    if threads > 0:
-        # set back to default
-        os.environ['NUMBA_NUM_THREADS'] = '0'
+    if threads == 0:
+        threads = numba.config.NUMBA_DEFAULT_NUM_THREADS
+    threads = str(threads)
+    try:
+        prev_numba_value = os.environ['NUMBA_NUM_THREADS']
+    except KeyError:
+        prev_numba_value = threads
+    if threads != prev_numba_value:
+        os.environ['NUMBA_NUM_THREADS'] = threads
+        _csr_node2vec_walks.recompile()
+        _csr_random_walk.recompile()
+    if return_weight <= 0 or neighbor_weight <= 0:
+        raise ValueError("Return and neighbor weights must be > 0")
+    if (return_weight > 1. or  return_weight < 1. 
+            or neighbor_weight < 1. or neighbor_weight > 1.):
+        walks = _csr_node2vec_walks(T.data, T.indptr, T.indices, 
+                                    sampling_nodes=sampling_nodes, 
+                                    walklen=walklen, 
+                                    return_weight=return_weight, 
+                                    neighbor_weight=neighbor_weight)
+    else:
+        walks = _csr_random_walk(T.data, T.indptr, T.indices, 
+                                 sampling_nodes, walklen)
+    # set back to default
+    os.environ['NUMBA_NUM_THREADS'] = prev_numba_value
     return walks
 
 
@@ -247,7 +281,7 @@ def _sparse_normalize_rows(mat):
 
 
 
-class Graph2Vec():
+class Node2Vec():
     """
     Embeds NetworkX into a continuous representation of the nodes.
 
@@ -259,7 +293,7 @@ class Graph2Vec():
         self, walklen=10, epochs=20, return_weight=1., 
         neighbor_weight=1., threads=0,
         w2vparams={"window":10, "size":32, "negative":20, "iter":10,
-                   "batch_words":128, "workers": 6}):
+                   "batch_words":128}):
         """
         Parameters
         ----------
@@ -267,19 +301,22 @@ class Graph2Vec():
             length of the random walks
         epochs : int
             number of times to start a walk from each nodes
-        return_weight : float in [0, inf]
+        return_weight : float in (0, inf]
             Weight on the probability of returning to node coming from
             Having this higher tends the walks to be 
-            more like a Breadth-First Search
-            Equal to the inverse of p in the Node2Vec paper
-        neighbor_weight : float in [0, inf]
+            more like a Breadth-First Search.
+            Having this very high  (> 2) makes search very local.
+            Equal to the inverse of p in the Node2Vec paper.
+        neighbor_weight : float in (0, inf]
             Weight on the probability of visitng a neighbor node
             to the one we're coming from in the random walk
             Having this higher tends the walks to be 
-            more like a Depth-First Search
-            Equal to the inverse of q in the Node2Vec paper
+            more like a Depth-First Search.
+            Having this very high makes search more outward.
+            Having this very low makes search very local.
+            Equal to the inverse of q in the Node2Vec paper.
         threads : int
-            number of threads to use
+            number of threads to use. 0 is full use
         w2vparams : dict
             dictionary of parameters to pass to gensim's word2vec
             of relevance is "size" (length of resulting embedding vector)
@@ -295,9 +332,10 @@ class Graph2Vec():
         self.return_weight = return_weight
         self.neighbor_weight = neighbor_weight
         self.w2vparams = w2vparams
+        if threads == 0:
+            threads = numba.config.NUMBA_DEFAULT_NUM_THREADS
         self.threads = threads
-        if self.threads > 0:
-            w2vparams['workers'] = threads
+        w2vparams['workers'] = threads
 
     def fit(self, nxGraph: nx.Graph, verbose=1):
         """
@@ -320,14 +358,10 @@ class Graph2Vec():
         if verbose:
             print("Making walks...", end=" ")
                 # If node2vec graph weights not identity, apply them
-        if (self.return_weight > 1. or  self.return_weight < 1. 
-                or self.neighbor_weight < 1. or self.neighbor_weight > 1.):
-                raise ValueError(
-                    "NOT IMPLEMENTED"
-                )
-        else:
-            walks = make_walks(T, walklen=self.walklen, epochs=self.epochs,
-                               threads=self.threads)
+        walks = make_walks(T, walklen=self.walklen, epochs=self.epochs,
+                            return_weight=self.return_weight,
+                            neighbor_weight=self.neighbor_weight,
+                            threads=self.threads)
         if verbose:
             print(f"Done, T={time.time() - walks_t:.2f}")
             print("Mapping Walk Names...", end=" ")
