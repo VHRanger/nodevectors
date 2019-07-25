@@ -23,6 +23,14 @@
 
 ## Installing
 
+### Requirements
+
+- Numba
+- Gensim
+- Pandas
+- Scipy
+- Numpy
+
 
 #### Test Installation (from project's root folder)
 
