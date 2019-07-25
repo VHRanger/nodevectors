@@ -15,6 +15,11 @@
 
     # Save model to gensim.KeyedVector format
     g2v.save("wheel_model.bin")
+    
+    # Load directly in gensim
+    from gensim.models import KeyedVectors
+    kv = KeyedVectors.load_word2vec_format("wheel_model.bin")
+    kv[str(42)] # need to convert node ID to str explicitly to read in gensim
 
 ## Installing
 
