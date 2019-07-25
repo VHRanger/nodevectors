@@ -23,7 +23,7 @@
 
 ## Installing
 
-### Requirements
+### Dependencies
 
 - Numba
 - Gensim
