@@ -116,6 +116,55 @@ class TestNodeWalks(unittest.TestCase):
         np.testing.assert_array_equal(t2[:, 1], t2[:, 5])
         np.testing.assert_array_equal(t2[:, 1], t2[:, 7])
 
+    def test_no_loop_weights(self):
+        """
+        if return weight ~inf, should loop back and forth
+        """
+        n_nodes = 5
+        n_epoch = 2
+        walklen=10
+        fully_connected = np.ones((n_nodes,n_nodes))
+        np.fill_diagonal(fully_connected, 0)
+        fully_connected = graph2vec.graph._sparse_normalize_rows(
+            fully_connected
+        )
+        t1 = graph2vec.graph.make_walks( 
+            fully_connected,
+            walklen=walklen,
+            epochs=n_epoch,
+            return_weight=0.000001,
+            neighbor_weight=1.,
+            threads=0)
+        # Neighbor weight ~ 0 should also loop 
+        t2 = graph2vec.graph.make_walks( 
+            fully_connected,
+            walklen=walklen,
+            epochs=n_epoch,
+            return_weight=1.,
+            neighbor_weight=99999999,
+            # Change thread values to make sure it works
+            threads=0)
+        self.assertTrue(t1.shape == (n_nodes * n_epoch, walklen))
+
+        # Test that it doesn't loop back
+        # Difference between skips shouldnt be 0 anywhere
+        tres1 = ((t1[:, 0] - t1[:, 2]) != 0)
+        tres2 = ((t1[:, 1] - t1[:, 3]) != 0)
+        tres3 = ((t1[:, 2] - t1[:, 4]) != 0)
+        tres4 = ((t1[:, 3] - t1[:, 5]) != 0)
+        for i in [tres1, tres2, tres3, tres4]:
+            if not i.all():
+                print(f"ERROR in walks\n\n {t1}")
+            self.assertTrue(i.all())
+        # Second by neighbor weight
+        tres1 = ((t2[:, 0] - t2[:, 2]) != 0)
+        tres2 = ((t2[:, 1] - t2[:, 3]) != 0)
+        tres3 = ((t2[:, 2] - t2[:, 4]) != 0)
+        tres4 = ((t2[:, 3] - t2[:, 5]) != 0)
+        for i in [tres1, tres2, tres3, tres4]:
+            if not i.all():
+                print(f"ERROR in walks\n\n {t2}")
+            self.assertTrue(i.all())
 
 class TestSparseUtilities(unittest.TestCase):
     """
