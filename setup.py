@@ -9,6 +9,7 @@ setup(
     author='Matt Ranger',
     url='https://github.com/VHRanger/graph2vec/',
     packages=find_packages(),
+    download_url='https://github.com/VHRanger/graph2vec/archive/0.0.1.tar.gz',
     keywords=['graph', 'network', 'embedding', 'node2vec'],
     package_data={
         # If any package contains *.txt or *.rst files, include them:
