@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="EmbeddingLib",
+    name="graph2vec",
     version="0.0.1",
     packages=find_packages(),
 
@@ -13,10 +13,9 @@ setup(
 
     install_requires=[
         'gensim',
+        'numba',
         'numpy',
         'pandas',
-        'sklearn',
-		'pytest',
-		'pytest-cov'
+        'scipy',
       ],
 )
