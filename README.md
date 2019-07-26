@@ -1,5 +1,5 @@
 ## Quick Example:
-
+```python
     import networkx as nx
     from graph2vec import Node2Vec
 
@@ -15,7 +15,7 @@
 
     # Save model to gensim.KeyedVector format
     g2v.save("wheel_model.bin")
-
+```
 ## Installing
 
 
