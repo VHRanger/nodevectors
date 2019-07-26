@@ -82,7 +82,6 @@ def _csr_random_walk(Tdata, Tindptr, Tindices,
     return res
 
 
-# TODO: test
 @jit(nopython=True, parallel=True, nogil=True, fastmath=True)
 def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
                         sampling_nodes,
