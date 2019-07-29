@@ -82,7 +82,9 @@ def _csr_random_walk(Tdata, Tindptr, Tindices,
     return res
 
 
-@jit(nopython=True, parallel=True, nogil=True, fastmath=True)
+# TODO: This throws heap corruption errors when made parallel
+#       doesn't seem to be illegal reads anywhere though...
+@jit(nopython=True, nogil=True, fastmath=True)
 def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
                         sampling_nodes,
                         walklen,
@@ -129,7 +131,7 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
     """
     n_walks = len(sampling_nodes)
     res = np.empty((n_walks, walklen), dtype=np.int64)
-    for i in numba.prange(n_walks):
+    for i in range(n_walks):
         # Current node (each element is one walk's state)
         state = sampling_nodes[i]
         res[i, 0] = state
@@ -155,7 +157,7 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
             this_edges =  Tindices[start:end]
             prev_edges =  Tindices[start_prev:end_prev]
             p = np.copy(Tdata[start:end])
-            ret_idx = np.where(this_edges == prev)[0]
+            ret_idx = np.where(this_edges == prev)
             p[ret_idx] = np.multiply(p[ret_idx], return_weight)
             for pe in prev_edges:
                 n_idx = np.where(this_edges == pe)[0]
@@ -166,7 +168,7 @@ def _csr_node2vec_walks(Tdata, Tindptr, Tindices,
             next_idx = np.searchsorted(cdf, draw)
             state = this_edges[next_idx]
         # Write final states
-        res[i, -1] = state
+        res[i, k] = state
     return res
 
 
@@ -226,6 +228,7 @@ def make_walks(T,
         prev_numba_value = os.environ['NUMBA_NUM_THREADS']
     except KeyError:
         prev_numba_value = threads
+    # If we change the number of threads, recompile
     if threads != prev_numba_value:
         os.environ['NUMBA_NUM_THREADS'] = threads
         _csr_node2vec_walks.recompile()
@@ -239,6 +242,7 @@ def make_walks(T,
                                     walklen=walklen, 
                                     return_weight=return_weight, 
                                     neighbor_weight=neighbor_weight)
+    # much faster implementation for regular walks
     else:
         walks = _csr_random_walk(T.data, T.indptr, T.indices, 
                                  sampling_nodes, walklen)
@@ -251,6 +255,8 @@ def make_walks(T,
 def _sparse_normalize_rows(mat):
     """
     Normalize a sparse CSR matrix row-wise (each row sums to 1)
+
+    If a row is all 0's, it remains all 0's
     
     Parameters
     ----------
@@ -265,12 +271,15 @@ def _sparse_normalize_rows(mat):
     n_nodes = mat.shape[0]
     # Normalize Adjacency matrix to transition matrix
     # Diagonal of the degree matrix is the sum of nonzero elements
-    degrees = np.array(np.sum(mat, axis=1)).flatten()
-    if np.isin(0, degrees).any():
-        raise ValueError("A Transition matrix row can't have all 0's")
+    degrees_div = np.array(np.sum(mat, axis=1)).flatten()
     # This is equivalent to inverting the diag mat
     # weights are 1 / degree
-    degrees = 1 / degrees
+    degrees = np.divide(
+        1,
+        degrees_div,
+        out=np.zeros_like(degrees_div, dtype=float),
+        where=(degrees_div != 0)
+    )
     # construct sparse diag mat 
     # to broadcast weights to adj mat by dot product
     D = sparse.dia_matrix((n_nodes,n_nodes), dtype=np.float64)

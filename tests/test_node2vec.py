@@ -118,7 +118,7 @@ class TestNodeWalks(unittest.TestCase):
 
     def test_no_loop_weights(self):
         """
-        if return weight ~inf, should loop back and forth
+        if return weight ~0, should never return
         """
         n_nodes = 5
         n_epoch = 2
@@ -135,14 +135,13 @@ class TestNodeWalks(unittest.TestCase):
             return_weight=0.000001,
             neighbor_weight=1.,
             threads=0)
-        # Neighbor weight ~ 0 should also loop 
+        # Neighbor weight ~inf should also never return 
         t2 = graph2vec.graph.make_walks( 
             fully_connected,
             walklen=walklen,
             epochs=n_epoch,
             return_weight=1.,
             neighbor_weight=99999999,
-            # Change thread values to make sure it works
             threads=0)
         self.assertTrue(t1.shape == (n_nodes * n_epoch, walklen))
 
@@ -192,17 +191,16 @@ class TestSparseUtilities(unittest.TestCase):
             absorbing_state_graph.toarray(),
             decimal=3
         )
-        with self.assertRaises(ValueError):
-            graph2vec.graph._sparse_normalize_rows(
-                np.array([
-                    [1,2,3,4,5,6],
-                    [1,0,0,1,0,1],
-                    [1,1,1,1,1,1],
-                    [0,0,0,0,0,0], # Bad row
-                    [1,0,0,0,0,0],
-                    [0,10,0,1,0,0.1]
-                ])
-            )
+        graph2vec.graph._sparse_normalize_rows(
+            np.array([
+                [1,2,3,4,5,6],
+                [1,0,0,1,0,1],
+                [1,1,1,1,1,1],
+                [0,0,0,0,0,0], # all 0 row
+                [1,0,0,0,0,0],
+                [0,10,0,1,0,0.1]
+            ])
+        )
 
         warnings.resetwarnings()
 
