@@ -8,7 +8,7 @@
  
     # Fit embedding model to graph
     g2v = Node2Vec()
-    g2v.fit(G)
+    g2v.fit(G) # way faster than other node2vec implementations
  
     # query embeddings for node 42
     g2v.predict(42)
