@@ -289,7 +289,7 @@ def _sparse_normalize_rows(mat):
 
 
 
-class Node2Vec():
+class Node2Vec:
     """
     Embeds NetworkX into a continuous representation of the nodes.
 
