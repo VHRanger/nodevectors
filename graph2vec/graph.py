@@ -403,7 +403,7 @@ class Node2Vec():
         # ints need to be str -_-
         if type(node_name) is not str:
             node_name = str(node_name)
-        return self.model[node_name]
+        return self.model.wv.__getitem__(node_name)
 
     def save(self, out_file):
         """
