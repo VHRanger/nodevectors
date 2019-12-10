@@ -355,7 +355,9 @@ class Node2Vec():
         verbose : bool
             Whether to print output while working
         """
-        node_names = list(nxGraph.nodes)
+        # Because networkx graphs are actually iterables of their nodes
+        #   we do list(G) to avoid networkx 1.X vs 2.X errors
+        node_names = list(nxGraph)
         if type(node_names[0]) not in [int, str, np.int32, np.int64]:
             raise ValueError("Graph node names must be int or str!")
         # Adjacency matrix
