@@ -4,7 +4,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name="graph2vec",
+    name="graph2vec-learn",
     version="0.0.1",
     license='MIT',
     description='Fast networkx graph node embeddings',
