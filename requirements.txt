@@ -1,0 +1,6 @@
+gensim
+networkx
+numba
+numpy
+pandas
+scipy

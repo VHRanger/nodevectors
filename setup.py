@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
 
 setup(
     name="graph2vec",
@@ -15,11 +17,5 @@ setup(
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.md', '*.txt', '*.rst']
     },
-    install_requires=[
-        'gensim',
-        'numba',
-        'numpy',
-        'pandas',
-        'scipy',
-      ],
+    install_requires=required,
 )
