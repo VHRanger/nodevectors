@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/VHRanger/graph2vec.svg?branch=master)](https://travis-ci.com/VHRanger/graph2vec)
+
 ## Quick Example:
 ```python
     import networkx as nx
