@@ -26,7 +26,9 @@
 ```
 ## Installing
 
-Currently through downloading this project and `python setup.py install`. I'll get it on pip ASAP.
+`pip install graph2vec-learn`
+
+The pip package named `graph2vec` is not this one! It's some thing from 2015
 
 #### Test Installation (from project's root folder)
 
