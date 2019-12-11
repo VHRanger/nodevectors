@@ -17,5 +17,12 @@ setup(
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.md', '*.txt', '*.rst']
     },
-    install_requires=required,
+    install_requires=[
+    'gensim',
+    'networkx',
+    'numba',
+    'numpy',
+    'pandas',
+    'scipy',
+    ],
 )
