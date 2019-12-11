@@ -29,7 +29,3 @@
 `pip install graph2vec-learn`
 
 The pip package named `graph2vec` is not this one! It's some thing from 2015
-
-#### Test Installation (from project's root folder)
-
-    python -m unittest discover tests
