@@ -53,18 +53,22 @@ class TestGraphEmbedding(unittest.TestCase):
             walklen=5, epochs=5,
             return_weight=1., 
             neighbor_weight=1., threads=0,
+            keep_walks=True,
             w2vparams={"window":10, "size":wordsize, "negative":20, "iter":10,
                        "batch_words":128, "workers": 6})
         g2v2 = graph2vec.Node2Vec(
             walklen=5, epochs=5,
             return_weight=1.5, 
-            neighbor_weight=0.5, threads=0,
+            neighbor_weight=0.5, threads=0, 
+            keep_walks=False,
             w2vparams={"window":10, "size":wordsize, "negative":20, "iter":10,
                        "batch_words":128, "workers": 6})
         g2v.fit(tt, verbose=False)
         g2v2.fit(tt, verbose=False)
         self.assertTrue(len(g2v.predict(9)) == wordsize)
         self.assertTrue(len(g2v2.predict(9)) == wordsize)
+        self.assertTrue(hasattr(g2v, 'walks'))
+        self.assertFalse(hasattr(g2v2, 'walks'))
         warnings.resetwarnings()
 
 

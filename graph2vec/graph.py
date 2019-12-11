@@ -299,7 +299,7 @@ class Node2Vec():
     """
     def __init__(
         self, walklen=10, epochs=20, return_weight=1., 
-        neighbor_weight=1., threads=0,
+        neighbor_weight=1., threads=0, keep_walks=True,
         w2vparams={"window":10, "size":32, "negative":20, "iter":10,
                    "batch_words":128}):
         """
@@ -339,6 +339,7 @@ class Node2Vec():
         self.epochs = epochs
         self.return_weight = return_weight
         self.neighbor_weight = neighbor_weight
+        self.keep_walks = keep_walks
         self.w2vparams = w2vparams
         if threads == 0:
             threads = numba.config.NUMBA_DEFAULT_NUM_THREADS
@@ -368,7 +369,7 @@ class Node2Vec():
         if verbose:
             print("Making walks...", end=" ")
                 # If node2vec graph weights not identity, apply them
-        walks = make_walks(T, walklen=self.walklen, epochs=self.epochs,
+        self.walks = make_walks(T, walklen=self.walklen, epochs=self.epochs,
                             return_weight=self.return_weight,
                             neighbor_weight=self.neighbor_weight,
                             threads=self.threads)
@@ -376,12 +377,12 @@ class Node2Vec():
             print(f"Done, T={time.time() - walks_t:.2f}")
             print("Mapping Walk Names...", end=" ")
         map_t = time.time()
-        walks = pd.DataFrame(walks)
+        self.walks = pd.DataFrame(self.walks)
         # Map nodeId -> node name
         node_dict = dict(zip(np.arange(n_nodes), node_names))
-        for col in walks.columns:
-            walks[col] = walks[col].map(node_dict).astype(str)
-        walks = [list(x) for x in walks.itertuples(False, None)]
+        for col in self.walks.columns:
+            self.walks[col] = self.walks[col].map(node_dict).astype(str)
+        self.walks = [list(x) for x in self.walks.itertuples(False, None)]
         if verbose:
             print(f"Done, T={time.time() - map_t:.2f}")
             print("Training W2V...", end=" ")
@@ -392,8 +393,10 @@ class Node2Vec():
         w2v_t = time.time()
         # Train gensim word2vec model on random walks
         self.model = gensim.models.Word2Vec(
-            sentences=walks,
+            sentences=self.walks,
             **self.w2vparams)
+        if not self.keep_walks:
+            del self.walks
         if verbose:
             print(f"Done, T={time.time() - w2v_t:.2f}")
     
