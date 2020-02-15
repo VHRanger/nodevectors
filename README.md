@@ -32,6 +32,10 @@
 
 The pip package named `graph2vec` is not this one! It's some thing from 2015
 
+### Usage
+
+The public methods are all exposed in the quick example. The documentation is included in the docstrings of the methods, so for instance typing `g2v.fit?` in a Jupyter Notebook will expose the documentation directly.
+
 ## How does it work?
 
 We transform the graph into a CSR sparse matrix, and generate the random walks directly on the CSR matrix raw data with optimized Numba JIT'ed code. After that, a Word2Vec model is trained on the random walks, as if the walks were the Word2Vec sentences.
