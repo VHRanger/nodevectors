@@ -10,7 +10,9 @@
  
     # Fit embedding model to graph
     g2v = Node2Vec()
-    g2v.fit(G) # way faster than other node2vec implementations
+    # way faster than other node2vec implementations
+    # Graph edge weights are handled automatically
+    g2v.fit(G)
  
     # query embeddings for node 42
     g2v.predict(42)
@@ -29,3 +31,7 @@
 `pip install graph2vec-learn`
 
 The pip package named `graph2vec` is not this one! It's some thing from 2015
+
+## How does it work?
+
+We transform the graph into a CSR sparse matrix, and generate the random walks directly on the CSR matrix raw data with optimized Numba JIT'ed code. After that, a Word2Vec model is trained on the random walks, as if the walks were the Word2Vec sentences.
