@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="graph2vec-learn",
-    version="0.1.4",
+    version="0.1.5",
     license='MIT',
     description='Fast networkx graph node embeddings',
     author='Matt Ranger',
