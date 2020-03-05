@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/VHRanger/graph2vec.svg?branch=master)](https://travis-ci.com/VHRanger/graph2vec)
+[![Build Status](https://travis-ci.com/VHRanger/nodevectors.svg?branch=master)](https://travis-ci.com/VHRanger/nodevectors)
 
 ## Quick Example:
 ```python
