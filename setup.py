@@ -15,7 +15,7 @@ setup(
         '': ['*.md', '*.txt', '*.rst']
     },
     install_requires=[
-    'CSRGraph',
+    'csrgraph',
     'gensim',
     'networkx',
     'numba',
