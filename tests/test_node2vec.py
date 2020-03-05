@@ -20,7 +20,7 @@ class TestGraphEmbedding(unittest.TestCase):
         # Gensim triggers deprecation warnings...
         warnings.simplefilter("ignore", category=PendingDeprecationWarning)
         warnings.simplefilter("ignore", category=DeprecationWarning)
-        g2v = graph2vec.Node2Vec(
+        g2v = nodevectors.Node2Vec(
             walklen=5, 
             epochs=5,
             threads=6,
@@ -28,7 +28,7 @@ class TestGraphEmbedding(unittest.TestCase):
             keep_walks=True,
             w2vparams={"window":3, "negative":3, "iter":3,
                        "batch_words":32, "workers": 2})
-        g2v2 = graph2vec.Node2Vec(
+        g2v2 = nodevectors.Node2Vec(
             walklen=5, 
             epochs=5,
             threads=6, 
@@ -48,7 +48,7 @@ class TestGraphEmbedding(unittest.TestCase):
         fname = 'test_saving'
         try:
             g2v.save(fname)
-            g2v_l = graph2vec.Node2Vec.load(fname + '.zip')
+            g2v_l = nodevectors.Node2Vec.load(fname + '.zip')
             res_l = g2v_l.predict(9)
             self.assertTrue(len(res_l) == wordsize)
             np.testing.assert_array_almost_equal(res_l, res_v)
@@ -58,7 +58,7 @@ class TestGraphEmbedding(unittest.TestCase):
     def test_skl(self):
         tt = nx.generators.complete_graph(25)
         ndim = 3
-        skle = graph2vec.SKLearnEmbedder(
+        skle = nodevectors.SKLearnEmbedder(
             manifold.Isomap, 
             n_components=ndim,
             n_neighbors=3)
@@ -69,7 +69,7 @@ class TestGraphEmbedding(unittest.TestCase):
         fname = 'test_saving'
         try:
             skle.save(fname)
-            g2v_l = graph2vec.SKLearnEmbedder.load(fname + '.zip')
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
             res_l = g2v_l.predict(9)
             self.assertTrue(len(res_l) == ndim)
             np.testing.assert_array_almost_equal(res_l, res_v)
