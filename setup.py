@@ -22,5 +22,6 @@ setup(
     'numpy',
     'pandas',
     'scipy',
+    'scikit-learn',
     ],
 )
