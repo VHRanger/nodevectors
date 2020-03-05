@@ -3,7 +3,7 @@
 ## Quick Example:
 ```python
     import networkx as nx
-    from graph2vec import Node2Vec
+    from nodevectors import Node2Vec
 
     # Test Graph
     G = nx.generators.classic.wheel_graph(100)
@@ -28,9 +28,7 @@
 ```
 ## Installing
 
-`pip install graph2vec-learn`
-
-The pip package named `graph2vec` is not this one! It's some thing from 2015
+`pip install nodevectors`
 
 ### Usage
 
