@@ -1,2 +1,2 @@
-from nodevectors import graph
-from nodevectors.graph import Node2Vec
+from nodevectors import embedders
+from nodevectors.embedders import SKLearnEmbedder, Node2Vec
