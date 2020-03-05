@@ -7,7 +7,7 @@ import unittest
 import warnings
 
 import csrgraph
-import graph2vec
+import nodevectors
 
 
 class TestGraphEmbedding(unittest.TestCase):
