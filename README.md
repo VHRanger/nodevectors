@@ -41,4 +41,4 @@ The public methods are all exposed in the quick example. The documentation is in
 
 ## Why is it so fast?
 
-We leverage [CSRGraphs](https://github.com/VHRanger/CSRGraph) to do the random walks.
+We leverage [CSRGraphs](https://github.com/VHRanger/CSRGraph) to do the random walks. This uses CSR graph representations and a lot of Numba usage.
