@@ -41,4 +41,4 @@ The public methods are all exposed in the quick example. The documentation is in
 
 ## Why is it so fast?
 
-We leverage [CSRGraphs](https://github.com/VHRanger/CSRGraph) to do the random walks. After that, a Word2Vec model is trained on the random walks, as if the walks were the Word2Vec sentences.
+We leverage [CSRGraphs](https://github.com/VHRanger/CSRGraph) to do the random walks.
