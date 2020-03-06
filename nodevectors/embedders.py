@@ -261,7 +261,7 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             embedder, 
             normalize_graph=True,
             **kwargs):
-        ""
+        """
         Creates a node embedder through a SKLearn API model
         The SKLearn model must implement the fit_transform method
             (eg. Isomap, UMAP, PCA, etc.)
