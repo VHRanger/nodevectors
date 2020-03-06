@@ -150,6 +150,20 @@ class Node2Vec(BaseNodeEmbedder):
         n_components : int
             number of resulting dimensions for the embedding
             This should be set here rather than in the w2vparams arguments
+        return_weight : float in (0, inf]
+            Weight on the probability of returning to node coming from
+            Having this higher tends the walks to be 
+            more like a Breadth-First Search.
+            Having this very high  (> 2) makes search very local.
+            Equal to the inverse of p in the Node2Vec paper.
+        explore_weight : float in (0, inf]
+            Weight on the probability of visitng a neighbor node
+            to the one we're coming from in the random walk
+            Having this higher tends the walks to be 
+            more like a Depth-First Search.
+            Having this very high makes search more outward.
+            Having this very low makes search very local.
+            Equal to the inverse of q in the Node2Vec paper.
         keep_walks : bool
             Whether to save the random walks in the model object after training
         w2vparams : dict
