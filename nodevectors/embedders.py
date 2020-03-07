@@ -291,7 +291,7 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             
         **kwargs : SKLearn model keyword arguments
             These arguments are passed directly to the construction of the model
-        ""
+        """
         self.embedder = embedder(**kwargs)
         self.normalize_graph = normalize_graph
 
