@@ -19,7 +19,7 @@ import warnings
 # Gensim triggers automatic useless warnings for windows users...
 warnings.simplefilter("ignore", category=UserWarning)
 import gensim
-warnings.resetwarnings()
+warnings.simplefilter("default", category=UserWarning)
 
 import csrgraph
 from csrgraph import CSRGraph
@@ -312,6 +312,51 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             G = G.normalize(return_self=True)
             gc.collect()
         vectors = self.embedder.fit_transform(G.matrix())
+        self.model = dict(zip(G.nodes(), vectors))
+
+
+    def predict(self, node_name):
+        """
+        Return vector associated with node
+        node_name : str or int
+            either the node ID or node name depending on graph format
+        """
+        return self.model[node_name]
+
+
+class Glove(BaseNodeEmbedder):
+    def __init__(self, 
+            n_components=32,
+            tol=0.001,
+            max_epoch=150,
+            learning_rate=0.01, 
+            max_loss=10.,):
+        """
+        """
+        self.n_components = n_components
+        self.tol = tol
+        self.max_epoch = max_epoch
+        self.learning_rate = learning_rate
+        self.max_loss = max_loss
+
+    def fit(self, graph, verbose=1):
+        """
+        NOTE: Currently only support str or int as node name for graph
+        Parameters
+        ----------
+        nxGraph : graph data
+            Graph to embed
+            Can be any graph type that's supported by CSRGraph library
+            (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
+        verbose : bool
+            Whether to print output while working
+        """
+        G = CSRGraph(graph)
+        vectors = G.embeddings(n_components=self.n_components, 
+                              tol=self.tol, max_epoch=self.max_epoch,
+                              learning_rate=self.learning_rate, 
+                              max_loss=self.max_loss,
+                              method="edges")
         self.model = dict(zip(G.nodes(), vectors))
 
 
