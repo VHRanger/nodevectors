@@ -75,3 +75,26 @@ class TestGraphEmbedding(unittest.TestCase):
             np.testing.assert_array_almost_equal(res_l, res_v)
         finally:
             os.remove(fname + '.zip')
+
+    def test_glove(self):
+        tt = nx.generators.complete_graph(25)
+        ndim = 3
+        skle = nodevectors.Glove(
+            n_components=ndim,
+            tol=0.005,
+            max_loss=15,
+            learning_rate=0.1,
+            max_epoch=2000)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
