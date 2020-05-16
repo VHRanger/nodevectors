@@ -174,7 +174,7 @@ class Node2Vec(BaseNodeEmbedder):
             raise ValueError("Threads argument must be an int!")
         if walklen < 1 or epochs < 1:
             raise ValueError("Walklen and epochs arguments must be > 1")
-        self.n_components_ = n_components
+        self.n_components = n_components
         self.walklen = walklen
         self.epochs = epochs
         self.keep_walks = keep_walks
@@ -205,7 +205,8 @@ class Node2Vec(BaseNodeEmbedder):
         #   we do list(G) to avoid networkx 1.X vs 2.X errors
         node_names = list(nxGraph)
         G = CSRGraph(nxGraph, threads=self.threads)
-        if type(node_names[0]) not in [int, str, np.int32, np.int64]:
+        if type(node_names[0]) not in [int, str, np.int32, np.uint32, 
+                                       np.int64, np.uint64]:
             raise ValueError("Graph node names must be int or str!")
         # Adjacency matrix
         walks_t = time.time()
@@ -238,7 +239,7 @@ class Node2Vec(BaseNodeEmbedder):
         # Train gensim word2vec model on random walks
         self.model = gensim.models.Word2Vec(
             sentences=self.walks,
-            size=self.n_components_,
+            size=self.n_components,
             **self.w2vparams)
         if not self.keep_walks:
             del self.walks
@@ -326,11 +327,11 @@ class SKLearnEmbedder(BaseNodeEmbedder):
 
 class Glove(BaseNodeEmbedder):
     def __init__(self, 
-            n_components=32,
-            tol=0.001,
-            max_epoch=150,
-            learning_rate=0.01, 
-            max_loss=10.,):
+        n_components=32,
+        learning_rate=0.05, max_loss=10.,
+        tol="auto", tol_samples=10,
+        threads=0,
+        max_epoch=1000, verbose=False):
         """
         """
         self.n_components = n_components
@@ -338,6 +339,9 @@ class Glove(BaseNodeEmbedder):
         self.max_epoch = max_epoch
         self.learning_rate = learning_rate
         self.max_loss = max_loss
+        self.tol_samples = tol_samples
+        self.threads = threads
+        self.verbose = verbose
 
     def fit(self, graph, verbose=1):
         """
@@ -351,14 +355,14 @@ class Glove(BaseNodeEmbedder):
         verbose : bool
             Whether to print output while working
         """
-        G = CSRGraph(graph)
+        G = CSRGraph(graph, threads=self.threads)
         vectors = G.embeddings(n_components=self.n_components, 
                               tol=self.tol, max_epoch=self.max_epoch,
                               learning_rate=self.learning_rate, 
+                              tol_samples=self.tol_samples,
                               max_loss=self.max_loss,
-                              method="edges")
+                              verbose=self.verbose)
         self.model = dict(zip(G.nodes(), vectors))
-
 
     def predict(self, node_name):
         """
