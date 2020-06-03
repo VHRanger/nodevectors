@@ -26,6 +26,7 @@ class TestGraphEmbedding(unittest.TestCase):
             threads=6,
             n_components=wordsize,
             keep_walks=True,
+            verbose=False,
             w2vparams={"window":3, "negative":3, "iter":3,
                        "batch_words":32, "workers": 2})
         g2v2 = nodevectors.Node2Vec(
@@ -34,10 +35,11 @@ class TestGraphEmbedding(unittest.TestCase):
             threads=6, 
             n_components=wordsize,
             keep_walks=False,
+            verbose=False,
             w2vparams={"window":3, "negative":3, "iter":3,
                        "batch_words":32, "workers": 2})
-        g2v.fit(tt, verbose=False)
-        g2v2.fit(tt, verbose=False)
+        g2v.fit(tt)
+        g2v2.fit(tt)
         res_v = g2v.predict(9)
         self.assertTrue(len(res_v) == wordsize)
         self.assertTrue(len(g2v2.predict(9)) == wordsize)
@@ -76,6 +78,58 @@ class TestGraphEmbedding(unittest.TestCase):
         finally:
             os.remove(fname + '.zip')
 
+    def test_ggvec(self):
+        tt = nx.generators.complete_graph(25)
+        ndim = 3
+        skle = nodevectors.GGVec(
+            n_components=ndim,
+            tol=0.15,
+            max_loss=15,
+            learning_rate=0.1,
+            negative_ratio=0.3,
+            order=1,
+            verbose=False,
+            max_epoch=2000)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
+
+    def test_ggvec_order2(self):
+        tt = nx.generators.complete_graph(25)
+        ndim = 3
+        skle = nodevectors.GGVec(
+            n_components=ndim,
+            tol=0.15,
+            max_loss=15,
+            learning_rate=0.1,
+            negative_ratio=0.3,
+            order=2,
+            verbose=False,
+            max_epoch=2000)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
+
     def test_glove(self):
         tt = nx.generators.complete_graph(25)
         ndim = 3
@@ -84,7 +138,26 @@ class TestGraphEmbedding(unittest.TestCase):
             tol=0.005,
             max_loss=15,
             learning_rate=0.1,
+            verbose=False,
             max_epoch=2000)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
+
+    def test_prone(self):
+        tt = nx.generators.complete_graph(25)
+        ndim = 3
+        skle = nodevectors.ProNE(n_components=ndim)
         skle.fit(tt)
         res_v = skle.predict(9)
         self.assertTrue(len(res_v) == ndim)
