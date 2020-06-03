@@ -2,12 +2,9 @@ import gc
 import joblib
 import json
 import networkx as nx
-import numba
-from numba import jit
 import numpy as np
 import os
 import pandas as pd
-from scipy import sparse
 import shutil
 from sklearn.base import BaseEstimator
 import sklearn
@@ -16,13 +13,8 @@ import tempfile
 import time
 import warnings
 
-# Gensim triggers automatic useless warnings for windows users...
-warnings.simplefilter("ignore", category=UserWarning)
-import gensim
-warnings.simplefilter("default", category=UserWarning)
-
-import csrgraph
-from csrgraph import CSRGraph
+import csrgraph as cg
+from csrgraph import csrgraph
 
 class BaseNodeEmbedder(BaseEstimator):
     """
@@ -55,7 +47,7 @@ class BaseNodeEmbedder(BaseEstimator):
             "python_": f'{sysverinfo[0]}.{sysverinfo[1]}',
             "skl_": sklearn.__version__[:-2],
             "pd_": pd.__version__[:-2],
-            "csrg_": csrgraph.__version__[:-2]
+            "csrg_": cg.__version__[:-2]
         }
         with tempfile.TemporaryDirectory() as temp_dir:
             joblib.dump(self, os.path.join(temp_dir, self.f_model), compress=True)
@@ -97,183 +89,45 @@ class BaseNodeEmbedder(BaseEstimator):
                 raise UserWarning(
                     "Invalid pandas version; {0}, required: {1}".format(
                         pdver, meta_data["pd_"]))
-            csrv = csrgraph.__version__[:-2]
+            csrv = cg.__version__[:-2]
             if meta_data["csrg_"] != csrv:
                 raise UserWarning(
-                    "Invalid CSRGraph version; {0}, required: {1}".format(
+                    "Invalid csrgraph version; {0}, required: {1}".format(
                         csrv, meta_data["csrg_"]))
         return model
 
-    def predict_new(self, neighbor_list, fn=np.mean):
-        """
-        Predicts a new node from its neighbors
-        Generally done through the average of the embeddings
-            of its neighboring nodes.
-            
-        neighbor_list : iterable[node_id or node name]
-            list of nodes with edges to the new node to be predicted
-        
-        fn : function array -> scalar
-            function to reduce the embeddings. Normally np.mean or np.sum
-            This takes the embeddings of the neighbors and reduces them 
-               to the final estimate for the unseen node
-        """
-        # TODO: test
-        pass
-
-class Node2Vec(BaseNodeEmbedder):
-    """
-    Embeds NetworkX into a continuous representation of the nodes.
-    The resulting embedding can be queried just like word embeddings.
-    Note: the graph's node names need to be int or str.
-    """
-    def __init__(
-        self, 
-        walklen=10, 
-        epochs=20,
-        return_weight=1.,
-        neighbor_weight=1.,
-        n_components=32,
-        threads=0, 
-        keep_walks=False,
-        w2vparams={"window":10, "negative":5, "iter":10,
-                   "batch_words":128}):
-        """
-        Parameters
-        ----------
-        walklen : int
-            length of the random walks
-        epochs : int
-            number of times to start a walk from each nodes
-        threads : int
-            number of threads to use. 0 is full use
-        n_components : int
-            number of resulting dimensions for the embedding
-            This should be set here rather than in the w2vparams arguments
-        return_weight : float in (0, inf]
-            Weight on the probability of returning to node coming from
-            Having this higher tends the walks to be 
-            more like a Breadth-First Search.
-            Having this very high  (> 2) makes search very local.
-            Equal to the inverse of p in the Node2Vec paper.
-        explore_weight : float in (0, inf]
-            Weight on the probability of visitng a neighbor node
-            to the one we're coming from in the random walk
-            Having this higher tends the walks to be 
-            more like a Depth-First Search.
-            Having this very high makes search more outward.
-            Having this very low makes search very local.
-            Equal to the inverse of q in the Node2Vec paper.
-        keep_walks : bool
-            Whether to save the random walks in the model object after training
-        w2vparams : dict
-            dictionary of parameters to pass to gensim's word2vec
-            Don't set the embedding dimensions through arguments here.
-        """
-        if type(threads) is not int:
-            raise ValueError("Threads argument must be an int!")
-        if walklen < 1 or epochs < 1:
-            raise ValueError("Walklen and epochs arguments must be > 1")
-        self.n_components = n_components
-        self.walklen = walklen
-        self.epochs = epochs
-        self.keep_walks = keep_walks
-        if 'size' in w2vparams.keys():
-            raise AttributeError("Embedding dimensions should not be set "
-                + "through w2v parameters, but through n_components")
-        self.w2vparams = w2vparams
-        self.return_weight = return_weight
-        self.neighbor_weight = neighbor_weight
-        if threads == 0:
-            threads = numba.config.NUMBA_DEFAULT_NUM_THREADS
-        self.threads = threads
-        w2vparams['workers'] = threads
-
-    def fit(self, nxGraph, verbose=1):
-        """
-        NOTE: Currently only support str or int as node name for graph
-        Parameters
-        ----------
-        nxGraph : graph data
-            Graph to embed
-            Can be any graph type that's supported by CSRGraph library
-            (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
-        verbose : bool
-            Whether to print output while working
-        """
-        # Because networkx graphs are actually iterables of their nodes
-        #   we do list(G) to avoid networkx 1.X vs 2.X errors
-        node_names = list(nxGraph)
-        G = CSRGraph(nxGraph, threads=self.threads)
-        if type(node_names[0]) not in [int, str, np.int32, np.uint32, 
-                                       np.int64, np.uint64]:
-            raise ValueError("Graph node names must be int or str!")
-        # Adjacency matrix
-        walks_t = time.time()
-        if verbose:
-            print("Making walks...", end=" ")
-        self.walks = G.random_walks(walklen=self.walklen, 
-                                    epochs=self.epochs,
-                                    return_weight=self.return_weight,
-                                    neighbor_weight=self.neighbor_weight)
-        if verbose:
-            print(f"Done, T={time.time() - walks_t:.2f}")
-            print("Mapping Walk Names...", end=" ")
-        map_t = time.time()
-        self.walks = pd.DataFrame(self.walks)
-        # Map nodeId -> node name
-        node_dict = dict(zip(np.arange(len(node_names)), node_names))
-        for col in self.walks.columns:
-            self.walks[col] = self.walks[col].map(node_dict).astype(str)
-        # Somehow gensim only trains on this list iterator
-        # it silently mistrains on array input
-        self.walks = [list(x) for x in self.walks.itertuples(False, None)]
-        if verbose:
-            print(f"Done, T={time.time() - map_t:.2f}")
-            print("Training W2V...", end=" ")
-            if gensim.models.word2vec.FAST_VERSION < 1:
-                print("WARNING: gensim word2vec version is unoptimized"
-                    "Try version 3.6 if on windows, versions 3.7 "
-                    "and 3.8 have had issues")
-        w2v_t = time.time()
-        # Train gensim word2vec model on random walks
-        self.model = gensim.models.Word2Vec(
-            sentences=self.walks,
-            size=self.n_components,
-            **self.w2vparams)
-        if not self.keep_walks:
-            del self.walks
-        if verbose:
-            print(f"Done, T={time.time() - w2v_t:.2f}")
-    
     def predict(self, node_name):
         """
         Return vector associated with node
         node_name : str or int
             either the node ID or node name depending on graph format
         """
-        # current hack to work around word2vec problem
-        # ints need to be str -_-
-        if type(node_name) is not str:
-            node_name = str(node_name)
-        return self.model.wv.__getitem__(node_name)
+        return self.model[node_name]
 
-    def save_vectors(self, out_file):
+    def predict_new(self, 
+            neighbor_list,
+            pooling=lambda x : np.mean(x, axis=0)):
         """
-        Save as embeddings in gensim.models.KeyedVectors format
-        """
-        self.model.wv.save_word2vec_format(out_file)
+        Predicts a new node from its neighbors
+        Generally done through the average of the embeddings
+            of its neighboring nodes.
+            
+        neighbor_list : iterable[node_id or node name]
+            list of node names/IDs with edges to the new node to be predicted
+        
+        pooling : function array[ndim] -> array[1d]
+            function to reduce the embeddings. Normally np.mean or np.sum
+            This takes the embeddings of the neighbors and reduces them 
+               to the final estimate for the unseen node
 
-    def load_vectors(self, out_file):
+        TODO: test
         """
-        Load embeddings from gensim.models.KeyedVectors format
-        """
-        self.model = gensim.wv.load_word2vec_format(out_file)
+        return pooling([self.predict(x) for x in neighbor_list])
 
 
 class SKLearnEmbedder(BaseNodeEmbedder):
     def __init__(self, 
-            embedder, 
+            embedder,
             normalize_graph=True,
             **kwargs):
         """
@@ -288,7 +142,7 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             
         normalize_graph : bool
             Whether to normalize the graph edge weights before embedding
-            This calls the optimized CSRGraph routine
+            This calls the optimized csrgraph routine
             
         **kwargs : SKLearn model keyword arguments
             These arguments are passed directly to the construction of the model
@@ -296,7 +150,25 @@ class SKLearnEmbedder(BaseNodeEmbedder):
         self.embedder = embedder(**kwargs)
         self.normalize_graph = normalize_graph
 
-    def fit(self, graph, verbose=1):
+    def fit(self, graph):
+        """
+        NOTE: Currently only support str or int as node name for graph
+        Parameters
+        ----------
+        nxGraph : graph data
+            Graph to embed
+            Can be any graph type that's supported by csrgraph library
+            (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
+        """
+        G = csrgraph(graph)
+        if self.normalize_graph:
+            G = G.normalize(return_self=False)
+            gc.collect()
+        vectors = self.embedder.fit_transform(G.mat)
+        self.model = dict(zip(G.nodes(), vectors))
+
+
+    def fit_transform(self, graph):
         """
         NOTE: Currently only support str or int as node name for graph
         Parameters
@@ -305,69 +177,11 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             Graph to embed
             Can be any graph type that's supported by CSRGraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
-        verbose : bool
-            Whether to print output while working
         """
-        G = CSRGraph(graph)
+        G = csrgraph(graph)
         if self.normalize_graph:
             G = G.normalize(return_self=True)
             gc.collect()
         vectors = self.embedder.fit_transform(G.matrix())
         self.model = dict(zip(G.nodes(), vectors))
-
-
-    def predict(self, node_name):
-        """
-        Return vector associated with node
-        node_name : str or int
-            either the node ID or node name depending on graph format
-        """
-        return self.model[node_name]
-
-
-class Glove(BaseNodeEmbedder):
-    def __init__(self, 
-        n_components=32,
-        learning_rate=0.05, max_loss=10.,
-        tol="auto", tol_samples=10,
-        threads=0,
-        max_epoch=1000, verbose=False):
-        """
-        """
-        self.n_components = n_components
-        self.tol = tol
-        self.max_epoch = max_epoch
-        self.learning_rate = learning_rate
-        self.max_loss = max_loss
-        self.tol_samples = tol_samples
-        self.threads = threads
-        self.verbose = verbose
-
-    def fit(self, graph, verbose=1):
-        """
-        NOTE: Currently only support str or int as node name for graph
-        Parameters
-        ----------
-        nxGraph : graph data
-            Graph to embed
-            Can be any graph type that's supported by CSRGraph library
-            (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
-        verbose : bool
-            Whether to print output while working
-        """
-        G = CSRGraph(graph, threads=self.threads)
-        vectors = G.embeddings(n_components=self.n_components, 
-                              tol=self.tol, max_epoch=self.max_epoch,
-                              learning_rate=self.learning_rate, 
-                              tol_samples=self.tol_samples,
-                              max_loss=self.max_loss,
-                              verbose=self.verbose)
-        self.model = dict(zip(G.nodes(), vectors))
-
-    def predict(self, node_name):
-        """
-        Return vector associated with node
-        node_name : str or int
-            either the node ID or node name depending on graph format
-        """
-        return self.model[node_name]
+        return vectors
