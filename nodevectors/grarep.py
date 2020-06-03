@@ -4,6 +4,11 @@ from sklearn.decomposition import TruncatedSVD
 import csrgraph as cg
 from nodevectors.embedders import BaseNodeEmbedder
 
+
+def grarep_sum_merger(x):
+    """default pooling method for GraRep (summing along axes)"""
+    return np.sum(x, axis=0)
+
 class GraRep(BaseNodeEmbedder):
     def __init__(self, 
         n_components=32,
@@ -11,7 +16,7 @@ class GraRep(BaseNodeEmbedder):
         embedder=TruncatedSVD(
             n_iter=10,
             random_state=42),
-        merger=(lambda x : np.sum(x, axis=0)),
+        merger=grarep_sum_merger,
         verbose=True):
         """
         Arbitrarily high order global embedding
