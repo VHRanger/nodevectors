@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.com/VHRanger/nodevectors.svg?branch=master)](https://travis-ci.com/VHRanger/nodevectors)
 
-This package implements fast/scalable node embedding algorithms. This can be used to embed the nodes in graph objects -- we support [NetworkX](https://networkx.github.io/) graph types natively.
+This package implements fast/scalable node embedding algorithms. This can be used to embed the nodes in graph objects. We support [NetworkX](https://networkx.github.io/) graph types natively.
     
-You can also use it to efficiently embed arbitrary scipy [CSR Sparse Matrices](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html), though not all algorithms here are optimized for this usecase.
+You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html), though not all algorithms here are optimized for this usecase.
 
 ## Installing
 
