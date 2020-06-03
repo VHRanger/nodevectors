@@ -54,6 +54,8 @@ You can also use it to efficiently embed arbitrary scipy [CSR Sparse Matrices](h
     
 ```
 
+**Warning:** Saving in Gensim format is only supported for the Node2Vec model at this point. Other models build a `Dict` or embeddings.
+
 ## Embedding a large graph
 
 NetworkX doesn't support large graphs (>500,000 nodes) because it uses lots of memory for each node. We recommend using [CSRGraphs](https://github.com/VHRanger/CSRGraph) (which is installed with this package) to load the graph in memory:
