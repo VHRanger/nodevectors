@@ -56,7 +56,7 @@ You can also use it to efficiently embed arbitrary scipy [CSR Sparse Matrices](h
 
 ## Embedding a large graph
 
-NetworkX doesn't support large graphs (>200,000 nodes) because it uses lots of memory for each node. We recommend using [CSRGraphs](https://github.com/VHRanger/CSRGraph) (which is installed with this package) to load the graph in memory:
+NetworkX doesn't support large graphs (>500,000 nodes) because it uses lots of memory for each node. We recommend using [CSRGraphs](https://github.com/VHRanger/CSRGraph) (which is installed with this package) to load the graph in memory:
 
 ```
 import csrgraph
