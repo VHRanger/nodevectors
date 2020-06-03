@@ -171,3 +171,22 @@ class TestGraphEmbedding(unittest.TestCase):
             np.testing.assert_array_almost_equal(res_l, res_v)
         finally:
             os.remove(fname + '.zip')
+
+
+    def test_grarep(self):
+        tt = nx.generators.complete_graph(25)
+        ndim = 3
+        skle = nodevectors.GraRep(n_components=ndim)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
