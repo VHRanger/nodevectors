@@ -14,7 +14,6 @@ import time
 import warnings
 
 import csrgraph as cg
-from csrgraph import csrgraph
 
 class BaseNodeEmbedder(BaseEstimator):
     """
@@ -160,7 +159,7 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             Can be any graph type that's supported by csrgraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
         """
-        G = csrgraph(graph)
+        G = cg.csrgraph(graph)
         if self.normalize_graph:
             G = G.normalize(return_self=False)
             gc.collect()
@@ -178,7 +177,7 @@ class SKLearnEmbedder(BaseNodeEmbedder):
             Can be any graph type that's supported by CSRGraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
         """
-        G = csrgraph(graph)
+        G = cg.csrgraph(graph)
         if self.normalize_graph:
             G = G.normalize(return_self=True)
             gc.collect()
