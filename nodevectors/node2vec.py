@@ -16,11 +16,11 @@ from nodevectors.embedders import BaseNodeEmbedder
 class Node2Vec(BaseNodeEmbedder):
     def __init__(
         self, 
-        walklen=10, 
+        n_components=32,
+        walklen=30, 
         epochs=20,
         return_weight=1.,
         neighbor_weight=1.,
-        n_components=32,
         threads=0, 
         keep_walks=False,
         verbose=True,

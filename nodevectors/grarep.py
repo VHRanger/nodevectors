@@ -5,7 +5,7 @@ from nodevectors.embedders import BaseNodeEmbedder
 
 class GraRep(BaseNodeEmbedder):
     def __init__(self, 
-        n_components=2,
+        n_components=32,
         order=2,
         embedder=TruncatedSVD(
             n_iter=10,

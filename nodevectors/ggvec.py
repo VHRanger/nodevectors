@@ -5,12 +5,13 @@ class GGVec(BaseNodeEmbedder):
     def __init__(self, 
         n_components=32,
         order=1,
-        learning_rate=0.05, max_loss=10.,
-        tol="auto", tol_samples=100,
-        exponent=0.5,
+        learning_rate=0.1, max_loss=10.,
+        tol="auto", tol_samples=75,
+        exponent=0.33,
         threads=0,
-        negative_ratio=1.0,
-        max_epoch=1000, verbose=False):
+        negative_ratio=0.15,
+        max_epoch=350, 
+        verbose=False):
         """
         GGVec: Fast global first (and higher) order local embeddings.
 

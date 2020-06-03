@@ -3,8 +3,8 @@ from nodevectors.embedders import BaseNodeEmbedder
 
 class Glove(BaseNodeEmbedder):
     def __init__(
-        self, n_components=2,
-        tol=0.0001, max_epoch=10_000, 
+        self, n_components=32,
+        tol=0.0001, max_epoch=1000, 
         max_count=50, learning_rate=0.1, 
         max_loss=10., exponent=0.5,
         threads=0, verbose=True):
