@@ -181,6 +181,6 @@ class SKLearnEmbedder(BaseNodeEmbedder):
         if self.normalize_graph:
             G = G.normalize(return_self=True)
             gc.collect()
-        vectors = self.embedder.fit_transform(G.matrix())
+        vectors = self.embedder.fit_transform(G.mat)
         self.model = dict(zip(G.nodes(), vectors))
         return vectors
