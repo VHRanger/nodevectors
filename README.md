@@ -10,17 +10,17 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
 
 ## Supported Algorithms
 
-- [Node2vec](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)
+- [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf))
 
-- GGVec (paper upcoming)
+- [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming)
 
-- [GraRep](https://dl.acm.org/doi/pdf/10.1145/2806416.2806512)
+- [GraRep](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/grarep.py) ([paper](https://dl.acm.org/doi/pdf/10.1145/2806416.2806512))
 
-- [ProNe](https://www.ijcai.org/Proceedings/2019/0594.pdf)
+- [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf))
 
-- [GLoVe](https://nlp.stanford.edu/pubs/glove.pdf). This is useful to embed word co-occurence in sparse matrix form.
+- [GLoVe](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/glove.py) ([paper](https://nlp.stanford.edu/pubs/glove.pdf)). This is useful to embed word co-occurence in sparse matrix form.
 
-- Any [Scikit-Learn API](https://scikit-learn.org/stable/modules/classes.html) compatible model that supports the `fit_transform` method with the `n_component` attribute (eg. all [manifold learning](https://scikit-learn.org/stable/modules/manifold.html#manifold) models, [UMAP](https://github.com/lmcinnes/umap), etc.)
+- Any [Scikit-Learn API model](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/embedders.py#L127) that supports the `fit_transform` method with the `n_component` attribute (eg. all [manifold learning](https://scikit-learn.org/stable/modules/manifold.html#manifold) models, [UMAP](https://github.com/lmcinnes/umap), etc.). Used with the `SKLearnEmbedder` object.
 
 ## Quick Example:
 ```python
@@ -85,10 +85,11 @@ The ProNE and GGVec algorithms are the fastest. GGVec uses the least RAM to embe
 
 GGVec can be used to learn embeddings directly from an edgelist file when the `order` parameter is constrained to be 1. This means you can embed arbitrarily large graphs without loading them into RAM.
 
+### Related Projects
 
-### Usage
+- [GraphVite](https://github.com/DeepGraphLearning/graphvite) is not a python package but aims to have some of the more scalable embedding algorithm implementations. 
 
-The public methods are all exposed in the quick example. The documentation is included in the docstrings of the methods, so for instance typing `g2v.fit?` in a Jupyter Notebook will expose the documentation directly.
+- [KarateClub](https://github.com/benedekrozemberczki/KarateClub) Is specifically to embed NetworkX graphs. The implementations are less scalable, but the package is more complete and has more types of embedding algorithms.
 
 ## Why is it so fast?
 
