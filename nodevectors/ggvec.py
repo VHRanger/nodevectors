@@ -27,9 +27,9 @@ class GGVec(BaseNodeEmbedder):
             Meta-level of the embeddings. Improves link prediction performance.
             Setting this higher than 1 ~quadratically slows down algorithm
                 Order = 1 directly optimizes the graph.
-                Order = 2 optimizes graph plus 2nd order edges
-                    (eg. neighbours of neighbours)
+                Order = 2 optimizes graph plus neighbours of neighbours
                 Order = 3 optimizes up to 3rd order edges
+                (and so on)
             Higher order edges are automatically weighed using GraRep-style graph formation
             Eg. the higher-order graph is from stable high-order random walk distribution.
         negative_ratio : float in [0, 1]
