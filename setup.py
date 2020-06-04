@@ -14,7 +14,7 @@ setup(
         '': ['*.md', '*.txt', '*.rst']
     },
     install_requires=[
-    'csrgraph',
+    'csrgraph==0.1.17',
     'gensim',
     'networkx',
     'numba',
@@ -22,5 +22,6 @@ setup(
     'pandas',
     'scipy',
     'scikit-learn',
+    'umap-learn'
     ],
 )

@@ -1,4 +1,4 @@
-csrgraph
+csrgraph==0.1.17
 gensim
 networkx
 numba
@@ -6,3 +6,4 @@ numpy
 pandas
 scipy
 scikit-learn
+umap-learn
