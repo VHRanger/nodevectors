@@ -63,7 +63,7 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
 NetworkX doesn't support large graphs (>500,000 nodes) because it uses lots of memory for each node. We recommend using [CSRGraphs](https://github.com/VHRanger/CSRGraph) (which is installed with this package) to load the graph in memory:
 
 ```python
-import csrgraph
+import csrgraph as cg
 import nodevectors
 
 G = cg.read_edgelist("path_to_file.csv")
