@@ -85,7 +85,7 @@ The ProNE and GGVec algorithms are the fastest. GGVec uses the least RAM to embe
 
 (Upcoming).
 
-GGVec can be used to learn embeddings directly from an edgelist file when the `order` parameter is constrained to be 1. This means you can embed arbitrarily large graphs without loading them into RAM.
+GGVec can be used to learn embeddings directly from an edgelist file (or stream) when the `order` parameter is constrained to be 1. This means you can embed arbitrarily large graphs without ever loading them entirely into RAM.
 
 ### Related Projects
 
