@@ -123,4 +123,7 @@ def LinkPrediction(embedding, G, train_G, test_pos_edges, seed=42):
     f12 = f1_score(y_test, y_pred)
     print(f"\t(lgbm)  AUC-ROC: {auc_roc2:.3f}, AUC-PR: {auc_pr2:.3f}, "
           f"Acc: {accuracy2:.3f}, F1: {f12:.3f}")
-    return auc_roc, auc_pr, accuracy, f1
+    return {"auc_roc": auc_roc, 
+            "auc_pr" : auc_pr, 
+            "accuracy" : accuracy, 
+            "f1" : f1}
