@@ -272,7 +272,7 @@ def evalClusteringOnLabels(clusters, groupLabels, verbose=True):
     results.append(metrics.fowlkes_mallows_score(clusters, groupLabels))
     if verbose:
         print(f"MI: {results[0]:.2f}, RAND {results[2]:.2f}, FM: {results[2]:.2f}")
-    return np.array(results)
+    return dict(zip(['MI', 'RAND', 'FM'], np.array(results)))
 
 def get_y_pred(y_test, y_pred_prob):
     """
@@ -334,16 +334,28 @@ def LabelPrediction(w, y, test_size=0.2, seed=42):
         y_pred = get_y_pred(y_test, y_pred_prob)
     else:
         y_pred = model.predict(X_test)
-    accuracy = metrics.accuracy_score(y_test, y_pred)
-    micro_f1 = metrics.f1_score(y_test, y_pred, average="micro")
-    macro_f1 = metrics.f1_score(y_test, y_pred, average="macro")
-    print(f"\t(lgbm) Acc: {accuracy:.3f}, F1 micro: {micro_f1:.3f}"
-          f", F1 macro: {micro_f1:.3f}")
+    accuracy_lgb = metrics.accuracy_score(y_test, y_pred)
+    micro_f1_lgb = metrics.f1_score(y_test, y_pred, average="micro")
+    macro_f1_lgb = metrics.f1_score(y_test, y_pred, average="macro")
+    print(f"\t(lgbm) Acc: {accuracy_lgb:.3f}, F1 micro: {micro_f1_lgb:.3f}"
+          f", F1 macro: {micro_f1_lgb:.3f}")
+    return {
+      "accuracy" : accuracy,
+      "micro_f1" : micro_f1,
+      "macro_f1" : macro_f1,
+      "accuracy_lgb" : accuracy_lgb,
+      "micro_f1_lgb" : micro_f1_lgb,
+      "macro_f1_lgb" : macro_f1_lgb,
+    }
 
 def print_labeled_tests(w, y, test_size=0.2, seed=42):
     """
     Clustering and label prediction tests
     """
+    X_train, X_test, y_train, y_test = train_test_split(
+        w, y, test_size=test_size, random_state=seed)
+    # Print Label Prediction Tests
+    res = LabelPrediction(w, y, test_size=test_size, seed=seed)
     # Can only cluster on single-label (not multioutput)
     if len(y.shape) < 2:
         n_clusters = np.unique(y).size
@@ -353,7 +365,5 @@ def print_labeled_tests(w, y, test_size=0.2, seed=42):
             linkage='average'
         ).fit(w).labels_
         x = evalClusteringOnLabels(umpagglo, y, verbose=True)
-    X_train, X_test, y_train, y_test = train_test_split(
-        w, y, test_size=test_size, random_state=seed)
-    # Print Label Prediction Tests
-    LabelPrediction(w, y, test_size=test_size, seed=seed)
+        res = {**res, **x}
+    return res
