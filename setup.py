@@ -19,7 +19,7 @@ setup(
     'networkx',
     'numba',
     'numpy',
-    'pandas',
+    'pandas >= 1.0',
     'scipy',
     'scikit-learn',
     ],
