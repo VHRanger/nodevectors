@@ -15,9 +15,7 @@ import time
 import umap
 import warnings
 
-import csrgraph
-from csrgraph import csrgraph
-
+import csrgraph as cg
 
 def make_blogcatalog(edgelist="../data/blogcatalog.mat",
                     dedupe=True):
@@ -232,7 +230,7 @@ def get_n2v_ppi(dir_name="../data/bioNEV/node2vec_PPI"):
     """
     Node2vec PPI dataset from BioNEV
     """
-    G = csrgraph.read_edgelist(dir_name + "/node2vec_PPI.edgelist", sep=' ')
+    G = cg.read_edgelist(dir_name + "/node2vec_PPI.edgelist", sep=' ')
     labels = read_bionev_labels(dir_name + "/node2vec_PPI_labels.txt")
     G = nx.Graph(G.mat)
     return G, labels
@@ -241,7 +239,7 @@ def get_drugbank_ddi(dir_name="../data/bioNEV/DrugBank_DDI"):
     """
     DrugBank DDI dataset from BioNEV
     """
-    G = csrgraph.read_edgelist(dir_name + "/DrugBank_DDI.edgelist", sep=' ')
+    G = cg.read_edgelist(dir_name + "/DrugBank_DDI.edgelist", sep=' ')
     G = nx.Graph(G.mat)
     return G
 
@@ -249,7 +247,7 @@ def get_mashup_ppi(dir_name="../data/bioNEV/Mashup_PPI"):
     """
     DrugBank DDI dataset from BioNEV
     """
-    G = csrgraph.read_edgelist(dir_name + "/Mashup_PPI.edgelist", sep=' ')
+    G = cg.read_edgelist(dir_name + "/Mashup_PPI.edgelist", sep=' ')
     labels = read_bionev_labels(dir_name + "/Mashup_PPI_labels.txt")
     G = nx.Graph(G.mat)
     return G, labels
