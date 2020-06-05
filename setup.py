@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="nodevectors",
-    version="0.1.18",
+    version="0.1.19",
     license='MIT',
     description='Fast network node embeddings',
     author='Matt Ranger',
