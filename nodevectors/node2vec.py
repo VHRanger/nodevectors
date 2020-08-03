@@ -78,20 +78,21 @@ class Node2Vec(BaseNodeEmbedder):
         w2vparams['workers'] = threads
         self.verbose = verbose
 
-    def fit(self, nxGraph):
+    def fit(self, G):
         """
         NOTE: Currently only support str or int as node name for graph
         Parameters
         ----------
-        nxGraph : graph data
+        G : graph data
             Graph to embed
             Can be any graph type that's supported by csrgraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
         """
+        if not isinstance(G, cg.csrgraph):
+            G = cg.csrgraph(G, threads=self.threads)
         # Because networkx graphs are actually iterables of their nodes
         #   we do list(G) to avoid networkx 1.X vs 2.X errors
-        node_names = list(nxGraph)
-        G = cg.csrgraph(nxGraph, threads=self.threads)
+        node_names = G.names
         if type(node_names[0]) not in [int, str, np.int32, np.uint32, 
                                        np.int64, np.uint64]:
             raise ValueError("Graph node names must be int or str!")
@@ -133,20 +134,20 @@ class Node2Vec(BaseNodeEmbedder):
         if self.verbose:
             print(f"Done, T={time.time() - w2v_t:.2f}")
 
-    def fit_transform(self, nxGraph):
+    def fit_transform(self, G):
         """
         NOTE: Currently only support str or int as node name for graph
         Parameters
         ----------
-        nxGraph : graph data
+        G : graph data
             Graph to embed
             Can be any graph type that's supported by csrgraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
         """
-        self.fit(nxGraph)
+        self.fit(G)
         w = np.array(
             pd.DataFrame.from_records(
-            pd.Series(np.arange(len(nxGraph.nodes)))
+            pd.Series(np.arange(len(G.nodes)))
               .apply(self.predict)
               .values)
         )

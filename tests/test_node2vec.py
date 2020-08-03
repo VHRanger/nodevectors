@@ -6,7 +6,7 @@ from sklearn import manifold
 import unittest
 import warnings
 
-import csrgraph
+import csrgraph as cg
 import nodevectors
 
 
@@ -177,6 +177,33 @@ class TestGraphEmbedding(unittest.TestCase):
         tt = nx.generators.complete_graph(25)
         ndim = 3
         skle = nodevectors.GraRep(n_components=ndim)
+        skle.fit(tt)
+        res_v = skle.predict(9)
+        self.assertTrue(len(res_v) == ndim)
+        # Test save/load
+        fname = 'test_saving'
+        try:
+            skle.save(fname)
+            g2v_l = nodevectors.SKLearnEmbedder.load(fname + '.zip')
+            res_l = g2v_l.predict(9)
+            self.assertTrue(len(res_l) == ndim)
+            np.testing.assert_array_almost_equal(res_l, res_v)
+        finally:
+            os.remove(fname + '.zip')
+
+
+    def test_node2vec_factored_names(self):
+        tt = cg.read_edgelist("./tests/unfactored_edgelist.csv", sep=",")
+        ndim = 3
+        skle = nodevectors.Node2Vec(
+            walklen=5, 
+            epochs=5,
+            threads=6,
+            n_components=ndim,
+            keep_walks=True,
+            verbose=False,
+            w2vparams={"window":3, "negative":3, "iter":3,
+                       "batch_words":32, "workers": 2})
         skle.fit(tt)
         res_v = skle.predict(9)
         self.assertTrue(len(res_v) == ndim)
