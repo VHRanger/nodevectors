@@ -90,6 +90,8 @@ class Node2Vec(BaseNodeEmbedder):
         """
         if not isinstance(G, cg.csrgraph):
             G = cg.csrgraph(G, threads=self.threads)
+        if G.threads != self.threads:
+            G.set_threads(self.threads)
         # Because networkx graphs are actually iterables of their nodes
         #   we do list(G) to avoid networkx 1.X vs 2.X errors
         node_names = G.names

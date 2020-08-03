@@ -198,7 +198,7 @@ class TestGraphEmbedding(unittest.TestCase):
         skle = nodevectors.Node2Vec(
             walklen=5, 
             epochs=5,
-            threads=6,
+            threads=1,
             n_components=ndim,
             keep_walks=True,
             verbose=False,
