@@ -66,7 +66,7 @@ NetworkX doesn't support large graphs (>500,000 nodes) because it uses lots of m
 import csrgraph as cg
 import nodevectors
 
-G = cg.read_edgelist("path_to_file.csv")
+G = cg.read_edgelist("path_to_file.csv", directed=False, sep=',')
 ggvec_model = nodevectors.GGVec() 
 embeddings = ggvec_model.fit_transform(G)
 ```
