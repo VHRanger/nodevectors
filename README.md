@@ -44,7 +44,7 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
     # Save and load whole node2vec model
     # Uses a smart pickling method to avoid serialization errors
     g2v.save('node2vec.pckl')
-    g2v = Node2vec.load('node2vec.pckl')
+    g2v = Node2Vec.load('node2vec.pckl')
     
     # Save model to gensim.KeyedVector format
     g2v.save_vectors("wheel_model.bin")
