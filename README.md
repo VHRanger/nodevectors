@@ -26,34 +26,36 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
 
 ## Quick Example:
 ```python
-    import networkx as nx
-    from nodevectors import Node2Vec
+import networkx as nx
+from nodevectors import Node2Vec
 
-    # Test Graph
-    G = nx.generators.classic.wheel_graph(100)
- 
-    # Fit embedding model to graph
-    g2v = Node2Vec()
-    # way faster than other node2vec implementations
-    # Graph edge weights are handled automatically
-    g2v.fit(G)
- 
-    # query embeddings for node 42
-    g2v.predict(42)
+# Test Graph
+G = nx.generators.classic.wheel_graph(100)
 
-    # Save and load whole node2vec model
-    # Uses a smart pickling method to avoid serialization errors
-    g2v.save('node2vec.pckl')
-    g2v = Node2Vec.load('node2vec.pckl')
-    
-    # Save model to gensim.KeyedVector format
-    g2v.save_vectors("wheel_model.bin")
-    
-    # load in gensim
-    from gensim.models import KeyedVectors
-    model = KeyedVectors.load_word2vec_format("wheel_model.bin")
-    model[str(43)] # need to make nodeID a str for gensim
-    
+# Fit embedding model to graph
+g2v = Node2Vec()
+# way faster than other node2vec implementations
+# Graph edge weights are handled automatically
+g2v.fit(G)
+
+# query embeddings for node 42
+g2v.predict(42)
+
+# Save and load whole node2vec model
+# Uses a smart pickling method to avoid serialization errors
+# Don't put a file extension after the `.save()` filename, `.zip` is automatically added
+g2v.save('node2vec')
+# You however need to specify the extension when reading it back
+g2v = Node2Vec.load('node2vec.zip')
+
+# Save model to gensim.KeyedVector format
+g2v.save_vectors("wheel_model.bin")
+
+# load in gensim
+from gensim.models import KeyedVectors
+model = KeyedVectors.load_word2vec_format("wheel_model.bin")
+model[str(43)] # need to make nodeID a str for gensim
+
 ```
 
 **Warning:** Saving in Gensim format is only supported for the Node2Vec model at this point. Other models build a `Dict` or embeddings.
