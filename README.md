@@ -76,6 +76,10 @@ ggvec_model = nodevectors.GGVec()
 embeddings = ggvec_model.fit_transform(G)
 ```
 
+The `read_edgelist` can take all the file-reading parameters of [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html). You can also specify whether the graph is **undirected** (so all edges go both ways) or **directed** (so edges are one-way)
+
+**Best algorithms to embed a large graph**
+
 The ProNE and GGVec algorithms are the fastest. GGVec uses the least RAM to embed larger graphs. Additionally here are some recommendations:
 
 - Don't use the `return_weight` and `neighbor_weight` if you are using the Node2Vec algorithm. It necessarily makes the walk generation step 40x-100x slower.
