@@ -90,7 +90,7 @@ The ProNE and GGVec algorithms are the fastest. GGVec uses the least RAM to embe
 
 - If you are using GraRep, keep the default embedder (TruncatedSVD) and keep the order low (1 or 2 at most).
 
-## Using as preprocessing to visualize large graphs
+## Preprocessing to visualize large graphs
 
 You can use our algorithms to preprocess data for algorithms like [UMAP](https://github.com/lmcinnes/umap) or T-SNE. You can first embed the graph to 16-400 dimensions then use these embeddings in the final visualization algorithm. 
 
