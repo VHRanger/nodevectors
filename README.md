@@ -94,7 +94,7 @@ The ProNE and GGVec algorithms are the fastest. GGVec uses the least RAM to embe
 
 You can use our algorithms to preprocess data for algorithms like [UMAP](https://github.com/lmcinnes/umap) or T-SNE. You can first embed the graph to 16-400 dimensions then use these embeddings in the final visualization algorithm. 
 
-Here is an example of this on the full english Wikipedia link graph (6M nodes) by [Owen Cornec](byowen.com):
+Here is an example of this on the full english Wikipedia link graph (6M nodes) by [Owen Cornec](http://byowen.com):
 
 ![alt tag](https://raw.githubusercontent.com/VHRanger/nodevectors/master/examples/Wikipedia%206M.png)
 
