@@ -108,9 +108,11 @@ GGVec can be used to learn embeddings directly from an edgelist file (or stream)
 
 ## Related Projects
 
-- [GraphVite](https://github.com/DeepGraphLearning/graphvite) is not a python package but aims to have some of the more scalable embedding algorithm implementations. 
+- [Spektral](https://github.com/danielegrattarola/spektral) for Graph Neural networks. Note you can use CSRGraphs as input to this library.
 
-- [KarateClub](https://github.com/benedekrozemberczki/KarateClub) Is specifically to embed NetworkX graphs. The implementations are less scalable, but the package is more complete and has more types of embedding algorithms.
+- [KarateClub](https://github.com/benedekrozemberczki/KarateClub) for node embeddings specifically on NetworkX graphs. The implementations are less scalable, because of it, but the package has more types of embedding algorithms.
+
+- [GraphVite](https://github.com/DeepGraphLearning/graphvite) is not a python package but has GPU-enabled embedding algorithm implementations. 
 
 ## Why is it so fast?
 
