@@ -14,13 +14,13 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
 
 - [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)). Note that Word2Vec sometimes misses words when training depending on settings. We recommend trying ProNE or GGVec if you run into issues.
 
-- [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming)
+- [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming). A good default algorithm. Best on large graphs and for visualization.
+
+- [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf)) The fastest and most reliable embedding algorithm.
 
 - [GraRep](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/grarep.py) ([paper](https://dl.acm.org/doi/pdf/10.1145/2806416.2806512))
 
-- [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf))
-
-- [GLoVe](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/glove.py) ([paper](https://nlp.stanford.edu/pubs/glove.pdf)). This is useful to embed word co-occurence in sparse matrix form.
+- [GLoVe](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/glove.py) ([paper](https://nlp.stanford.edu/pubs/glove.pdf)). This is useful to embed sparse matrices of positive counts, like word co-occurence.
 
 - Any [Scikit-Learn API model](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/embedders.py#L127) that supports the `fit_transform` method with the `n_component` attribute (eg. all [manifold learning](https://scikit-learn.org/stable/modules/manifold.html#manifold) models, [UMAP](https://github.com/lmcinnes/umap), etc.). Used with the `SKLearnEmbedder` object.
 
