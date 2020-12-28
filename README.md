@@ -16,7 +16,7 @@ You can also efficiently embed arbitrary scipy [CSR Sparse Matrices](https://doc
 
 - [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming). A good default algorithm. Best on large graphs and for visualization.
 
-- [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf)) The fastest and most reliable embedding algorithm.
+- [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf)). The fastest and most reliable embedding algorithm.
 
 - [GraRep](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/grarep.py) ([paper](https://dl.acm.org/doi/pdf/10.1145/2806416.2806512))
 
