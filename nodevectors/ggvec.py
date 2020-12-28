@@ -6,7 +6,7 @@ class GGVec(BaseNodeEmbedder):
         n_components=32,
         order=1,
         learning_rate=0.1, max_loss=10.,
-        tol="auto", tol_samples=75,
+        tol="auto", tol_samples=30,
         exponent=0.33,
         threads=0,
         negative_ratio=0.15,
