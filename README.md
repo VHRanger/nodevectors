@@ -10,7 +10,7 @@ This package implements fast/scalable node embedding algorithms. This can be use
 
 ## Supported Algorithms
 
-- [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)). Note that Word2Vec sometimes misses words when training depending on settings. We recommend trying ProNE or GGVec if you run into issues.
+- [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)). Note that despite popularity this isn't always the best method. We recommend trying ProNE or GGVec if you run into issues.
 
 - [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming). A good default algorithm. Best on large graphs and for visualization.
 
