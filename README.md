@@ -12,7 +12,7 @@ This package implements fast/scalable node embedding algorithms. This can be use
 
 - [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)). Note that despite popularity this isn't always the best method. We recommend trying ProNE or GGVec if you run into issues.
 
-- [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming). A good default algorithm. Best on large graphs and for visualization.
+- [GGVec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/ggvec.py) (paper upcoming). A flexible default algorithm. Best on large graphs and for visualization.
 
 - [ProNE](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/prone.py) ([paper](https://www.ijcai.org/Proceedings/2019/0594.pdf)). The fastest and most reliable sparse matrix/graph embedding algorithm.
 
