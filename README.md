@@ -112,6 +112,8 @@ GGVec can be used to learn embeddings directly from an edgelist file (or stream)
 
 - [GraphVite](https://github.com/DeepGraphLearning/graphvite) is not a python package but has GPU-enabled embedding algorithm implementations. 
 
+- [Cleora](https://github.com/Synerise/cleora), another fast/scalable node embedding algorithm implementation
+
 ## Why is it so fast?
 
 We leverage [CSRGraphs](https://github.com/VHRanger/CSRGraph) for most algorithms. This uses CSR graph representations and a lot of Numba JIT'ed procedures.
