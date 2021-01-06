@@ -106,7 +106,7 @@ GGVec can be used to learn embeddings directly from an edgelist file (or stream)
 
 ## Related Projects
 
-- [Spektral](https://github.com/danielegrattarola/spektral) for Graph Neural networks. Note you can use CSRGraphs as input to this library.
+- [DGL](https://github.com/dmlc/dgl) for Graph Neural networks.
 
 - [KarateClub](https://github.com/benedekrozemberczki/KarateClub) for node embeddings specifically on NetworkX graphs. The implementations are less scalable, because of it, but the package has more types of embedding algorithms.
 
