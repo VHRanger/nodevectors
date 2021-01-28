@@ -44,7 +44,7 @@ class Node2Vec(BaseNodeEmbedder):
             more like a Breadth-First Search.
             Having this very high  (> 2) makes search very local.
             Equal to the inverse of p in the Node2Vec paper.
-        explore_weight : float in (0, inf]
+        neighbor_weight : float in (0, inf]
             Weight on the probability of visitng a neighbor node
             to the one we're coming from in the random walk
             Having this higher tends the walks to be 
