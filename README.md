@@ -8,6 +8,8 @@ This package implements fast/scalable node embedding algorithms. This can be use
 
 `pip install nodevectors`
 
+This package depends on the [CSRGraphs](https://github.com/VHRanger/CSRGraph) package, which is automatically installed along it using pip. Most development happens there, so running `pip install --upgrade csrgraph` once in a while can update the underlying graph library.
+
 ## Supported Algorithms
 
 - [Node2Vec](https://github.com/VHRanger/nodevectors/blob/master/nodevectors/node2vec.py) ([paper](https://cs.stanford.edu/~jure/pubs/node2vec-kdd16.pdf)). Note that despite popularity this isn't always the best method. We recommend trying ProNE or GGVec if you run into issues.
