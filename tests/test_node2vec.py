@@ -217,3 +217,18 @@ class TestGraphEmbedding(unittest.TestCase):
             np.testing.assert_array_almost_equal(res_l, res_v)
         finally:
             os.remove(fname + '.zip')
+
+
+    def test_node2vec_fit_transform(self):
+        tt = cg.read_edgelist("./tests/unfactored_edgelist.csv", sep=",")
+        ndim = 3
+        skle = nodevectors.Node2Vec(
+            walklen=5, 
+            epochs=5,
+            threads=1,
+            n_components=ndim,
+            keep_walks=True,
+            verbose=False,
+            w2vparams={"window":3, "negative":3, "iter":3,
+                       "batch_words":32, "workers": 2})
+        skle.fit_transform(tt)

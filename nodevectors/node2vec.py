@@ -146,10 +146,12 @@ class Node2Vec(BaseNodeEmbedder):
             Can be any graph type that's supported by csrgraph library
             (NetworkX, numpy 2d array, scipy CSR matrix, CSR matrix components)
         """
+        if not isinstance(G, cg.csrgraph):
+            G = cg.csrgraph(G, threads=self.threads)
         self.fit(G)
         w = np.array(
             pd.DataFrame.from_records(
-            pd.Series(np.arange(len(G.nodes)))
+            pd.Series(np.arange(len(G.nodes())))
               .apply(self.predict)
               .values)
         )
