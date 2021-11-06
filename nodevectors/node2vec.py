@@ -101,14 +101,14 @@ class Node2Vec(BaseNodeEmbedder):
         # Adjacency matrix
         walks_t = time.time()
         if self.verbose:
-            print("Making walks...", end=" ")
+            print("Making walks...", end=" ", flush=True)
         self.walks = G.random_walks(walklen=self.walklen, 
                                     epochs=self.epochs,
                                     return_weight=self.return_weight,
                                     neighbor_weight=self.neighbor_weight)
         if self.verbose:
             print(f"Done, T={time.time() - walks_t:.2f}")
-            print("Mapping Walk Names...", end=" ")
+            print("Mapping Walk Names...", end=" ", flush=True)
         map_t = time.time()
         self.walks = pd.DataFrame(self.walks)
         # Map nodeId -> node name
@@ -120,7 +120,7 @@ class Node2Vec(BaseNodeEmbedder):
         self.walks = [list(x) for x in self.walks.itertuples(False, None)]
         if self.verbose:
             print(f"Done, T={time.time() - map_t:.2f}")
-            print("Training W2V...", end=" ")
+            print("Training W2V...", end=" ", flush=True)
             if gensim.models.word2vec.FAST_VERSION < 1:
                 print("WARNING: gensim word2vec version is unoptimized"
                     "Try version 3.6 if on windows, versions 3.7 "
