@@ -129,7 +129,7 @@ class Node2Vec(BaseNodeEmbedder):
         # Train gensim word2vec model on random walks
         self.model = gensim.models.Word2Vec(
             sentences=self.walks,
-            size=self.n_components,
+            vector_size=self.n_components,
             **self.w2vparams)
         if not self.keep_walks:
             del self.walks
