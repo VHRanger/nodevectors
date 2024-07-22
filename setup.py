@@ -16,7 +16,7 @@ setup(
     install_requires=[
     'csrgraph',
     'gensim',
-    'networkx',
+    'networkx <= 3.0',
     'numba',
     'numpy',
     'pandas >= 1.0',
