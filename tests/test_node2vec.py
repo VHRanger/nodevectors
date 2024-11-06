@@ -27,7 +27,7 @@ class TestGraphEmbedding(unittest.TestCase):
             n_components=wordsize,
             keep_walks=True,
             verbose=False,
-            w2vparams={"window":3, "negative":3, "iter":3,
+            w2vparams={"window":3, "negative":3, "epochs":3,
                        "batch_words":32, "workers": 2})
         g2v2 = nodevectors.Node2Vec(
             walklen=5, 
@@ -36,7 +36,7 @@ class TestGraphEmbedding(unittest.TestCase):
             n_components=wordsize,
             keep_walks=False,
             verbose=False,
-            w2vparams={"window":3, "negative":3, "iter":3,
+            w2vparams={"window":3, "negative":3, "epochs":3,
                        "batch_words":32, "workers": 2})
         g2v.fit(tt)
         g2v2.fit(tt)
@@ -202,7 +202,7 @@ class TestGraphEmbedding(unittest.TestCase):
             n_components=ndim,
             keep_walks=True,
             verbose=False,
-            w2vparams={"window":3, "negative":3, "iter":3,
+            w2vparams={"window":3, "negative":3, "epochs":3,
                        "batch_words":32, "workers": 2})
         skle.fit(tt)
         res_v = skle.predict(9)
@@ -229,6 +229,6 @@ class TestGraphEmbedding(unittest.TestCase):
             n_components=ndim,
             keep_walks=True,
             verbose=False,
-            w2vparams={"window":3, "negative":3, "iter":3,
+            w2vparams={"window":3, "negative":3, "epochs":3,
                        "batch_words":32, "workers": 2})
         skle.fit_transform(tt)
