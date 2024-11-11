@@ -24,7 +24,7 @@ class Node2Vec(BaseNodeEmbedder):
         threads=0, 
         keep_walks=False,
         verbose=True,
-        w2vparams={"window":10, "negative":5, "iter":10,
+        w2vparams={"window":10, "negative":5, "epochs":10,
                    "batch_words":128}):
         """
         Parameters
@@ -57,6 +57,22 @@ class Node2Vec(BaseNodeEmbedder):
         w2vparams : dict
             dictionary of parameters to pass to gensim's word2vec
             Don't set the embedding dimensions through arguments here.
+            
+            window : int, optional
+            Maximum distance between the current and predicted word within a sentence.
+            
+            negative : int, optional
+            If > 0, negative sampling will be used, the int for negative specifies how many "noise words"
+            should be drawn (usually between 5-20).
+            If 0, negative sampling will not be used.
+            
+            epochs : int, optional
+            Number of iterations (epochs) over the corpus. (Formerly: `iter`)
+            
+            batch_words : int, optional
+            Target size (in words) for batches of examples passed to worker threads (and
+            thus cython routines).(Larger batches will be passed if individual
+            texts are longer than 10000 words, but the standard cython code truncates to that maximum.)
         """
         if type(threads) is not int:
             raise ValueError("Threads argument must be an int!")
@@ -149,12 +165,8 @@ class Node2Vec(BaseNodeEmbedder):
         if not isinstance(G, cg.csrgraph):
             G = cg.csrgraph(G, threads=self.threads)
         self.fit(G)
-        w = np.array(
-            pd.DataFrame.from_records(
-            pd.Series(np.arange(len(G.nodes())))
-              .apply(self.predict)
-              .values)
-        )
+        node_names = G.names
+        w = np.array([self.predict(name) for name in node_names])
         return w
     
     def predict(self, node_name):

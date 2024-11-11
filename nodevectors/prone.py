@@ -6,6 +6,7 @@ from sklearn.utils.extmath import randomized_svd
 
 from nodevectors.embedders import BaseNodeEmbedder
 import csrgraph as cg
+from gensim.models import KeyedVectors
 
 class ProNE(BaseNodeEmbedder):
     def __init__(self, n_components=32, step=10, mu=0.2, theta=0.5, 
@@ -173,3 +174,24 @@ class ProNE(BaseNodeEmbedder):
         mm = A.dot(a - conv)
         emb = ProNE.svd_dense(mm, n_components)
         return emb
+    
+    @staticmethod
+    def save_vectors(instance, save_path):
+        """
+        Save node vectors in Word2Vec format.
+
+        Parameters
+        ----------
+        instance : ProNE
+            An instance of the ProNE model containing the node vectors
+        save_path : str
+            Path where the Word2Vec file will be saved
+        """
+        node_ids = list(map(str, instance.model.keys()))
+        vectors = list(instance.model.values())
+        
+        kv = KeyedVectors(vector_size=len(vectors[0]))
+        kv.add_vectors(node_ids, vectors)
+
+        # Save in Word2Vec format
+        kv.save_word2vec_format(save_path, binary=True)

@@ -1,5 +1,6 @@
 import csrgraph as cg
 from nodevectors.embedders import BaseNodeEmbedder
+from gensim.models import KeyedVectors
 
 class GGVec(BaseNodeEmbedder):
     def __init__(self, 
@@ -118,3 +119,24 @@ class GGVec(BaseNodeEmbedder):
             verbose=self.verbose)
         self.model = dict(zip(G.nodes(), vectors))
         return vectors
+  
+    @staticmethod
+    def save_vectors(instance, save_path):
+        """
+        Save node vectors in Word2Vec format.
+
+        Parameters
+        ----------
+        instance : GGVec
+            An instance of the GGVec model containing the node vectors
+        save_path : str
+            Path where the Word2Vec file will be saved
+        """
+        node_ids = list(map(str, instance.model.keys()))
+        vectors = list(instance.model.values())
+
+        kv = KeyedVectors(vector_size=len(vectors[0]))
+        kv.add_vectors(node_ids, vectors)
+
+        # Save in Word2Vec format
+        kv.save_word2vec_format(save_path, binary=True)
